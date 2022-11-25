@@ -1,6 +1,5 @@
 from rest_framework.views import APIView, Request, Response, status
 from .models import Team
-from .validators import TeamValidator
 from django.forms.models import model_to_dict
 
 
@@ -13,11 +12,6 @@ class TeamView(APIView):
 
 
     def post(self, request):
-        validator = TeamValidator(**request.data)
-
-        if not validator.is_valid():
-            return Response(validator.errors, status.HTTP_400_BAD_REQUEST)
-
         teams = Team.objects.create(**request.data)
         teams_dict = model_to_dict(teams)
 
@@ -40,9 +34,9 @@ class TeamViewId(APIView):
 
 
 
-    def patch(self, request: Request, teams_id: int) -> Response:
+    def patch(self, request: Request, team_id: int) -> Response:
         try:
-            teams = Team.objects.get(id=teams_id)
+            teams = Team.objects.get(id=team_id)
         except Team.DoesNotExist:
             return Response({
                 "message": "Team not found"
@@ -54,12 +48,12 @@ class TeamViewId(APIView):
         teams.save()
         teams_dict = model_to_dict(teams)
 
-        return Response(teams_dict)
+        return Response(teams_dict, status.HTTP_200_OK)
 
 
-    def delete(self, request: Request, teams_id: int) -> Response:
+    def delete(self, request: Request, team_id: int) -> Response:
         try:
-            teams = Team.objects.get(id=teams_id)
+            teams = Team.objects.get(id=team_id)
         except Team.DoesNotExist:
             return Response({
                 "message": "Team not found"
@@ -67,5 +61,5 @@ class TeamViewId(APIView):
 
         teams.delete()
 
-        return Response(status=status.HTTP_204_NO_TEAM)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
